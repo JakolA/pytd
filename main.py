@@ -5,18 +5,25 @@ from PyQt5.QtWidgets import (
     QPushButton,
     QGraphicsScene,
     QGraphicsView,
-    QGraphicsPixmapItem
+    QGraphicsPixmapItem,
+    QLabel
 )
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import QTimer
 from typing import List
+
+from qt5_extende import ClickablePixmapItem
+from game_objects import Barrack
 
 
 class Game:
     def __init__(self, name):
         self.name = name
+        self.timer = QTimer()
 
         app = QApplication([])
         wnd = self.init_window()
+        self.timer.start(100)
         wnd.show()
         app.exec_()
 
@@ -45,7 +52,7 @@ class Game:
         map_item.setPos(0, 0)
 
         barrack = QPixmap('media/barracks.png')
-        barrack_item = QGraphicsPixmapItem(barrack)
+        barrack_item = ClickablePixmapItem(barrack, obj_type='barrack')
         barrack_item.setPos(0, 119)
 
         scene.addItem(map_item)
