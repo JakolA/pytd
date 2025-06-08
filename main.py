@@ -16,16 +16,19 @@ from qt5_extende import ClickablePixmapItem
 from game_objects import Barrack
 
 
-class Game:
+class Game(QWidget):
     def __init__(self, name):
+        super().__init__()
         self.name = name
         self.timer = QTimer()
+        self.time_steps = 0
+        self.wnd, self.layout = self.init_window()
 
-        app = QApplication([])
-        wnd = self.init_window()
+        self.time_elapsed = QLabel(f"Time: {self.time_steps}")
+        self.layout.addWidget(self.time_elapsed)
+
+        self.timer.timeout.connect(self.update_game_status)
         self.timer.start(100)
-        wnd.show()
-        app.exec_()
 
     def init_window(self):
         window = QWidget()
@@ -41,7 +44,7 @@ class Game:
         layout = self.layouting(view=view, objects=[exit_button])
         window.setLayout(layout)
 
-        return window
+        return window, layout
 
     @staticmethod
     def init_view():
@@ -72,6 +75,19 @@ class Game:
 
         return layout
 
+    def update_game_status(self):
+        self.time_steps += 1
+        self.time_elapsed.setText(f'Time: {self.time_steps / 10}')
+        self.wnd.update()
+
+
+class GameWindow(Game, QWidget):
+    def __init__(self):
+        super().__init__()
+
 
 if __name__ == '__main__':
-    Game('Game')
+    app = QApplication([])
+    g = Game('Game')
+    g.wnd.show()
+    app.exec_()
