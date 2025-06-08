@@ -27,6 +27,11 @@ class Game(QWidget):
         self.time_elapsed = QLabel(f"Time: {self.time_steps}")
         self.layout.addWidget(self.time_elapsed)
 
+        self.btn_toggle = QPushButton("Pause")
+        self.btn_toggle.clicked.connect(self.toggle_timer)
+        self.btn_toggle.setFixedSize(60, 30)
+        self.layout.addWidget(self.btn_toggle)
+
         self.timer.timeout.connect(self.update_game_status)
         self.timer.start(100)
 
@@ -74,6 +79,14 @@ class Game(QWidget):
             layout.addWidget(obj)
 
         return layout
+
+    def toggle_timer(self):
+        if self.timer.isActive():
+            self.timer.stop()
+            self.btn_toggle.setText('Resume')
+        else:
+            self.timer.start(100)
+            self.btn_toggle.setText('Pause')
 
     def update_game_status(self):
         self.time_steps += 1
