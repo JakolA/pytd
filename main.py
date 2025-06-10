@@ -10,10 +10,10 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import QTimer
-from typing import List
+from typing import List, Optional
 
 from qt5_extende import ClickablePixmapItem
-from game_objects import Barrack
+from game_objects import GameObject, Barrack
 
 
 class Game(QWidget):
@@ -22,7 +22,10 @@ class Game(QWidget):
         self.name = name
         self.timer = QTimer()
         self.time_steps = 0
+        self.selected_game_object: Optional['GameObject'] = None
         self.wnd, self.layout = self.init_window()
+
+        self.barrack = Barrack
 
         self.time_elapsed = QLabel(f"Time: {self.time_steps}")
         self.layout.addWidget(self.time_elapsed)
@@ -51,8 +54,7 @@ class Game(QWidget):
 
         return window, layout
 
-    @staticmethod
-    def init_view():
+    def init_view(self):
         scene = QGraphicsScene()
 
         pixmap = QPixmap('media/map.png')
@@ -60,8 +62,15 @@ class Game(QWidget):
         map_item.setPos(0, 0)
 
         barrack = QPixmap('media/barracks.png')
-        barrack_item = ClickablePixmapItem(barrack, obj_type='barrack')
+        barrack_item = ClickablePixmapItem(barrack, game=self, obj_type='barrack')
         barrack_item.setPos(0, 119)
+
+        selected_game_object = self.selected_game_object
+        if selected_game_object is not None:
+            selected_zone_view = QPixmap('media/barrack_selected.png')
+            barrack_selected = QGraphicsPixmapItem(selected_zone_view)
+            barrack_selected.setPos(0, 519)
+            scene.addItem(barrack_selected)
 
         scene.addItem(map_item)
         scene.addItem(barrack_item)
@@ -91,7 +100,6 @@ class Game(QWidget):
     def update_game_status(self):
         self.time_steps += 1
         self.time_elapsed.setText(f'Time: {self.time_steps / 10}')
-        self.wnd.update()
 
 
 class GameWindow(Game, QWidget):
