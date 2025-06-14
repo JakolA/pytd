@@ -11,7 +11,6 @@ class ClickablePixmapItem(QGraphicsPixmapItem):
 
     def mousePressEvent(self, event: Optional['QGraphicsSceneMouseEvent']) -> None:
         self.view_selected_object(self.obj_type)
-        print('barrack is selected')
         super().mousePressEvent(event)
 
     def view_selected_object(self, obj_type):

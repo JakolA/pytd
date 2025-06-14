@@ -10,7 +10,6 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import QTimer, Qt
-from typing import List, Optional
 
 from qt5_extende import ClickablePixmapItem
 from game_objects import GameObject
@@ -22,28 +21,30 @@ class Game(QWidget):
         self.setFocusPolicy(Qt.StrongFocus)
         self.time_steps = 0
         self.selected_game_object = None
-        # self.wnd, self.layout = self.init_window()
+        self.scene = None
+        self.view = None
+        self.init_view()
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.view)
 
         self.time_elapsed = QLabel(f"Time: {self.time_steps}")
-        view = self.init_view()
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_game_status)
         self.timer.start(80)
 
-    def init_window(self):
-        window = QWidget()
-        window.setWindowTitle(self.name)
+    def update_game_status(self):
+        self.time_steps += 1
+        self.time_elapsed.setText(f'Time: {self.time_steps / 10}')
+        self.show_properties()
+        self.update()
 
-        window.resize(1430, 900)
-
-        #layout = self.layouting(view=view, objects=[exit_button])
-        #window.setLayout(layout)
-
-        return window
+    def handle_events(self):
+        pass
 
     def init_view(self):
-        scene = QGraphicsScene()
+        self.scene = QGraphicsScene()
 
         pixmap = QPixmap('media/map.png')
         map_item = QGraphicsPixmapItem(pixmap)
@@ -53,26 +54,18 @@ class Game(QWidget):
         barrack_item = ClickablePixmapItem(barrack, game=self, obj_type='barrack')
         barrack_item.setPos(0, 119)
 
-        selected_game_object = self.selected_game_object
-        if selected_game_object is not None:
+        self.scene.addItem(map_item)
+        self.scene.addItem(barrack_item)
+
+        self.view = QGraphicsView(self.scene)
+
+    def show_properties(self):
+        if self.selected_game_object == 'barrack':
             selected_zone_view = QPixmap('media/barrack_selected.png')
             barrack_selected = QGraphicsPixmapItem(selected_zone_view)
-            barrack_selected.setPos(0, 519)
-            scene.addItem(barrack_selected)
-
-        scene.addItem(map_item)
-        scene.addItem(barrack_item)
-
-        view = QGraphicsView(scene)
-        return view
-
-    def update_game_status(self):
-        self.time_steps += 1
-        self.time_elapsed.setText(f'Time: {self.time_steps / 10}')
-        self.update()
-
-    def handle_events(self):
-        pass
+            barrack_selected.setPos(0, 605)
+            self.scene.addItem(barrack_selected)
+            self.view = QGraphicsView(self.scene)
 
 
 class GameWindow(QMainWindow):
@@ -83,6 +76,7 @@ class GameWindow(QMainWindow):
         layout = QVBoxLayout()
 
         self.game_widget = Game()
+        self.selected_game_object = None
 
         exit_button = QPushButton('Exit')
         exit_button.clicked.connect(self.close)
@@ -94,6 +88,7 @@ class GameWindow(QMainWindow):
         layout.addWidget(exit_button)
         layout.addWidget(self.pause_button)
         layout.addWidget(self.game_widget.time_elapsed)
+        layout.addWidget(self.game_widget.view)
 
         central_widget.setLayout(layout)
         self.setCentralWidget(central_widget)
